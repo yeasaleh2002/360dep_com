@@ -38,7 +38,7 @@ const bannerConfig: ManagerConfig = {
       help: "Use a wide, landscape photo (at least 1920px wide looks best).",
     },
     { name: "title", label: "Heading on the photo", type: "text", placeholder: "e.g. Weddings, beautifully planned", help: "Leave empty to show the photo without text." },
-    { name: "description", label: "Short line under the heading", type: "textarea", rows: 2 },
+    { name: "description", label: "Short line under the heading", type: "textarea", rows: 2, placeholder: "e.g. Wedding, corporate and special events — planned end to end" },
     visibleSwitch,
   ],
   thumb: (i) => (i.imageUrl as string) ?? null,
@@ -56,7 +56,7 @@ const serviceConfig: ManagerConfig = {
   defaults: { title: "", description: "", imageUrl: null, priceMin: "", priceMax: "", isActive: true },
   fields: [
     { name: "title", label: "Service name", type: "text", required: true, placeholder: "e.g. Wedding Planning" },
-    { name: "description", label: "Description", type: "textarea", required: true, rows: 5, help: "A few sentences about what's included." },
+    { name: "description", label: "Description", type: "textarea", required: true, rows: 5, placeholder: "e.g. Venue decoration, stage, lighting, catering coordination and full management on the day.", help: "A few sentences about what's included." },
     { name: "imageUrl", label: "Photo", type: "image", preset: "photo", aspect: "aspect-[4/3]" },
     { name: "priceMin", label: "Starting price (৳)", type: "number", half: true, placeholder: "e.g. 50000", help: "Leave both prices empty to hide pricing." },
     { name: "priceMax", label: "Highest price (৳)", type: "number", half: true, placeholder: "e.g. 300000" },
@@ -80,10 +80,10 @@ const teamConfig: ManagerConfig = {
   schema: teamSchema,
   defaults: { name: "", designation: "", photoUrl: null, bio: "", facebook: "", linkedin: "", isActive: true },
   fields: [
-    { name: "name", label: "Full name", type: "text", required: true, half: true },
+    { name: "name", label: "Full name", type: "text", required: true, half: true, placeholder: "e.g. Rahim Uddin" },
     { name: "designation", label: "Role / designation", type: "text", required: true, half: true, placeholder: "e.g. Lead Planner" },
     { name: "photoUrl", label: "Photo", type: "image", preset: "portrait", aspect: "aspect-[4/5] max-w-[240px]", help: "A portrait (upright) photo works best." },
-    { name: "bio", label: "Short bio", type: "textarea", rows: 3 },
+    { name: "bio", label: "Short bio", type: "textarea", rows: 3, placeholder: "e.g. 8 years planning weddings and corporate events across Jashore." },
     { name: "facebook", label: "Facebook link", type: "url", half: true, placeholder: "facebook.com/…" },
     { name: "linkedin", label: "LinkedIn link", type: "url", half: true, placeholder: "linkedin.com/in/…" },
     visibleSwitch,
@@ -101,7 +101,7 @@ const clientConfig: ManagerConfig = {
   schema: clientSchema,
   defaults: { name: "", logoUrl: null, website: "", feedback: "", isActive: true },
   fields: [
-    { name: "name", label: "Client name", type: "text", required: true },
+    { name: "name", label: "Client name", type: "text", required: true, placeholder: "e.g. ABC Group" },
     {
       name: "logoUrl",
       label: "Logo",
@@ -151,7 +151,7 @@ const galleryConfig: ManagerConfig = {
         help: "Visitors can filter the gallery by category.",
       },
       { name: "youtubeUrl", label: "YouTube video link", type: "url", half: true, placeholder: "youtube.com/watch?v=…" },
-      { name: "description", label: "Description", type: "textarea", rows: 3 },
+      { name: "description", label: "Description", type: "textarea", rows: 3, placeholder: "e.g. Evening reception for 400 guests with a floral stage and warm lighting." },
       { name: "images", label: "Photos", type: "images", preset: "photo" },
       { name: "isFeatured", label: "Feature on the home page", type: "switch", help: "Featured items appear first in the home page gallery." },
       visibleSwitch,

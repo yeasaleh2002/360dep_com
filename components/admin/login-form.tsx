@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -20,6 +21,8 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
   const [resetKey, setResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -45,8 +48,10 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
         setResetKey((k) => k + 1);
         return;
       }
-      // Full navigation so the new session cookie is used by middleware.
-      window.location.assign(safeNext(next));
+      // The session cookie is already set, so a client-side navigation is enough (no page reload).
+      setRedirecting(true);
+      router.replace(safeNext(next));
+      router.refresh();
     } catch {
       setError("Network problem — check your connection and try again.");
       setResetKey((k) => k + 1);
@@ -59,7 +64,7 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
         <label htmlFor="email" className="field-label">
           Email
         </label>
-        <input id="email" type="email" autoComplete="username" className="field" aria-invalid={!!errors.email} {...register("email")} />
+        <input id="email" type="email" autoComplete="username" className="field" placeholder="admin@example.com" aria-invalid={!!errors.email} {...register("email")} />
         {errors.email && <p className="field-error">{errors.email.message}</p>}
       </div>
       <div>
@@ -72,6 +77,7 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
             autoFocus={Boolean(email)}
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
+            placeholder="Enter your password"
             className="field pr-12"
             aria-invalid={!!errors.password}
             {...register("password")}
@@ -96,9 +102,9 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
         </p>
       )}
 
-      <button type="submit" disabled={isSubmitting} className="admin-btn-primary w-full !min-h-[48px]">
-        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-        {isSubmitting ? "Signing in…" : "Sign in"}
+      <button type="submit" disabled={isSubmitting || redirecting} className="admin-btn-primary w-full !min-h-[48px]">
+        {isSubmitting || redirecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+        {redirecting ? "Opening dashboard…" : isSubmitting ? "Signing in…" : "Sign in"}
       </button>
     </form>
   );

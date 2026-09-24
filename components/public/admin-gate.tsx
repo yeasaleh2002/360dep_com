@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Loader2, Lock, X } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
@@ -13,6 +14,7 @@ export function AdminGate() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +41,9 @@ export function AdminGate() {
       });
       const data = (await res.json().catch(() => ({}))) as { redirect?: string; error?: string };
       if (res.ok && data.redirect) {
-        window.location.assign(data.redirect);
+        setOpen(false);
+        setEmail("");
+        router.push(data.redirect);
         return;
       }
       setOpen(false);
@@ -108,6 +112,7 @@ export function AdminGate() {
                 autoComplete="email"
                 required
                 maxLength={200}
+                placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="field"

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { LoginForm } from "@/components/admin/login-form";
 import { LogoMark } from "@/components/ui/logo";
 import { ThemeToggle } from "@/components/ui/toggles";
@@ -10,8 +12,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next, email } = await searchParams;
 
   return (
-    <main className="relative flex min-h-svh items-center justify-center bg-bg px-4 py-12">
-      <div className="absolute right-4 top-4">
+    <main className="relative flex min-h-svh items-center justify-center bg-bg px-4 pb-12 pt-20">
+      <div className="absolute inset-x-4 top-4 flex items-center justify-between">
+        <Link href="/" className="admin-btn-secondary !rounded-full">
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
         <ThemeToggle />
       </div>
       <div className="w-full max-w-sm">
