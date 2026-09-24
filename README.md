@@ -50,7 +50,7 @@ npx wrangler secret put DATABASE_URL                  # …and the other secrets
 npm run build && npm run deploy   # first deploy creates the free KV + D1 cache storage automatically
 ```
 
-**Auto-deploy from GitHub (Workers Builds):** create a **Worker** (not Pages) from the repo, keep Build command `npm run build`, set Deploy command to **`npm run deploy`**, and add `DATABASE_URL` + the `NEXT_PUBLIC_*` values as **build variables**.
+**Auto-deploy from GitHub (Workers Builds):** create a **Worker** (not Pages) from the repo, keep the default Build command `npm run build` and Deploy command `npx wrangler deploy`, and add `DATABASE_URL` + the `NEXT_PUBLIC_*` values as **build variables**.
 
 Step-by-step: **DEVELOPER_INSTRUCTIONS.md → Deploy to Cloudflare**.
 

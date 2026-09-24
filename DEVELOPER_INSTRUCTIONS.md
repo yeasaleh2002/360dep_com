@@ -89,7 +89,7 @@ lib/
   i18n/                     bn.json, en.json, provider + <T> component
   seo/                      district list, keyword generator, district page copy, JSON-LD
 drizzle/                    SQL for the schema (0000_init.sql = full schema for a new database)
-scripts/                    cf-deploy (deploy + KV/D1 setup), check-build-env, apply-sql, check-secrets
+scripts/                    cf-resources (creates/reuses KV + D1), cf-deploy, check-build-env, apply-sql, check-secrets
 middleware.ts               protects /admin/* and admin APIs
 open-next.config.ts         OpenNext cache setup (KV + D1)
 wrangler.jsonc              Cloudflare Worker config (no secrets)
@@ -374,7 +374,7 @@ type Lead = {
 
 Everything below works on the **free plan** with no payment method. There are two ways to deploy: **A** (recommended) builds automatically on every `git push`; **B** deploys from your computer.
 
-The page cache (Workers **KV**) and cache tags (**D1**) are created automatically by `npm run deploy` on the first deploy (`scripts/cf-deploy.mjs`) and reused afterwards — nothing to create or paste by hand.
+The page cache (Workers **KV**) and cache tags (**D1**) are created automatically on the first build/deploy (`scripts/cf-resources.mjs`) and reused afterwards — nothing to create or paste by hand. In Workers Builds this runs right after `npm run build`; locally it runs as part of `npm run deploy`.
 
 ### Option A — automatic deploys from GitHub (Workers Builds)
 
@@ -385,10 +385,10 @@ The page cache (Workers **KV**) and cache tags (**D1**) are created automaticall
    | Setting | Value |
    |---|---|
    | Build command | `npm run build` (the default) |
-   | Deploy command | **`npm run deploy`** (change it from `npx wrangler deploy`) |
+   | Deploy command | `npx wrangler deploy` (the default) or `npm run deploy` — both work |
    | Root directory | `/` |
 
-   `npx wrangler deploy` alone would skip the cache setup and admin edits would never reach the live site.
+   If the build fails at "Could not set up the KV / D1 cache storage", give the build API token **Workers KV Storage: Edit** and **D1: Edit** (Settings → Build → API token).
 3. **Build variables** — Settings → **Build** → **Variables and secrets** (the build pre-renders pages from the database and bakes in the public values):
 
    | Name | Type |
@@ -457,7 +457,7 @@ Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE
 | "Too many attempts" | The rate limit resets after one minute. |
 | Cloudflare build: "DATABASE_URL is missing at build time" | Add it under Settings → Build → Variables and secrets (build variables are separate from runtime secrets). See section 10. |
 | Deploy can't find `.open-next/worker.js` | Build command must be `npm run build`. |
-| Admin edits don't show on the live site | Deploy command must be `npm run deploy`, not `npx wrangler deploy` (that skips the cache setup). |
+| Deploy: "This Worker does not exist on your account [code: 10007]" during "Populating remote KV" | `wrangler.jsonc` had no KV id. Fixed: ids are now filled in after `npm run build` (`postbuild`). Make sure the Build command is `npm run build`. |
 | Build warnings about `CompressionStream` in `jose` | Harmless — that part of the library (encrypted JWTs) is never used. |
 | Worker exceeds the size limit | Check with `npx wrangler deploy --dry-run`. Currently ~1.4 MB gzipped against the 3 MB free limit. Avoid large server-side dependencies. |
 | A dynamic page returns 404 after an admin edit | Don't add `export const dynamicParams = false` to pages that read cached data — in Next 15 a tag revalidation then makes them 404 (`NoFallbackError`). Handle unknown params with `notFound()` instead (see `app/(public)/areas/[slug]/page.tsx`). |
