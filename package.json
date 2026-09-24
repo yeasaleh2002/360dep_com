@@ -1,0 +1,55 @@
+{
+  "name": "360dep",
+  "version": "1.0.0",
+  "private": true,
+  "description": "360DEP — premium event management website with admin portal",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "cf:build": "opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "db:studio": "drizzle-kit studio",
+    "hash-password": "tsx scripts/hash-password.mts",
+    "check-secrets": "node scripts/check-secrets.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:apply": "tsx --env-file=.env scripts/apply-sql.mts"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@hookform/resolvers": "^3.10.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@opennextjs/cloudflare": "^1.20.6",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.3",
+    "framer-motion": "^13.4.2",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.47.0",
+    "next": "^15.5.26",
+    "next-themes": "^0.4.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-hook-form": "^7.88.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.1",
+    "drizzle-kit": "^0.31.11",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.137.0"
+  },
+  "engines": {
+    "node": ">=20.12"
+  }
+}

@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.pnp*
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env — never commit secrets
+.env
+.env*.local
+
+# misc
+.DS_Store
+*.log
+.vercel
+coverage/
+
+# Cloudflare / OpenNext
+.open-next/
+.wrangler/
+.dev.vars*
+cloudflare-env.d.ts
