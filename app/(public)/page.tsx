@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { Hero } from "@/components/public/hero";
 import { EnergyRibbon } from "@/components/public/energy-ribbon";
+import { ProcessSteps } from "@/components/public/process-steps";
 import { ServiceCard } from "@/components/public/service-card";
 import { TeamCard } from "@/components/public/team-card";
 import { ClientsMarquee } from "@/components/public/client-logo";
@@ -49,8 +50,9 @@ export default async function HomePage() {
       <EnergyRibbon items={services.map((s) => s.title)} />
 
       {/* 2 · About */}
-      <section className="section">
-        <div className="container grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
+      <section id="main-content" className="section relative scroll-mt-20 overflow-hidden">
+        <div aria-hidden className="blob blob-gold -left-40 -top-20" />
+        <div className="container relative grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
           <Reveal>
             <p className="eyebrow">
               <T k="home.aboutEyebrow" />
@@ -112,6 +114,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <ProcessSteps />
+
       {/* Team */}
       <section className="section relative overflow-hidden">
         <div aria-hidden className="blob blob-gold -left-40 top-10" />
@@ -169,8 +173,9 @@ export default async function HomePage() {
 
       {/* 5 · Gallery (4 items: featured first) */}
       {gallery.length > 0 && (
-        <section className="section">
-          <div className="container">
+        <section className="section relative overflow-hidden">
+          <div aria-hidden className="blob blob-coral -left-32 bottom-0" />
+          <div className="container relative">
             <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
               <SectionHeading align="left" eyebrow="home.galleryEyebrow" title="home.galleryTitle" subtitle="home.gallerySubtitle" />
               <Link href="/gallery" className="btn-outline shrink-0">

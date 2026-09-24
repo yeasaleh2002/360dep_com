@@ -16,6 +16,16 @@ export function Hero({ banners }: { banners: PublicBanner[] }) {
   return (
     <section className={frame}>
       {banners.length === 1 ? <BannerSlide banner={banners[0]} priority /> : <BannerSlider banners={banners} />}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
+      <a
+        href="#main-content"
+        aria-label="Scroll down"
+        className="absolute bottom-16 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-white/80 transition hover:text-white md:flex"
+      >
+        <span className="flex h-10 w-6 justify-center rounded-full border-2 border-white/60 pt-2">
+          <span className="h-2 w-1 animate-bounce rounded-full bg-white" />
+        </span>
+      </a>
     </section>
   );
 }

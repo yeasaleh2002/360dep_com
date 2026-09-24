@@ -64,6 +64,7 @@ export default function BannerSlider({ banners }: { banners: PublicBanner[] }) {
             animate={{ opacity: i === index ? 1 : 0, scale: i === index ? 1 : 1.04 }}
             transition={{ opacity: { duration: 1.1, ease: "easeInOut" }, scale: { duration: 7, ease: "linear" } }}
             aria-hidden={i !== index}
+            inert={i !== index}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} / ${count}`}

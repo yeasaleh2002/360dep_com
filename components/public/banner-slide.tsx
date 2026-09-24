@@ -1,4 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { T } from "@/lib/i18n";
 import type { PublicBanner } from "@/lib/data";
 
 /**
@@ -37,6 +40,15 @@ export function BannerSlide({ banner, priority = false }: { banner: PublicBanner
                 {banner.description}
               </p>
             )}
+            <div className="animate-rise mt-8 flex flex-wrap justify-center gap-3 [animation-delay:450ms]">
+              <Link href="/contact" className="btn-gold">
+                <T k="hero.primary" />
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/gallery" className="btn-ghost-light hidden backdrop-blur-sm sm:inline-flex">
+                <T k="hero.secondary" />
+              </Link>
+            </div>
           </div>
         </div>
       )}

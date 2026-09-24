@@ -49,6 +49,7 @@
   body {
     @apply bg-bg font-sans text-ink antialiased;
     line-height: 1.65;
+    overflow-x: clip;
   }
 
   /* Bengali script needs more vertical room for its matras and conjuncts. */
@@ -99,12 +100,14 @@
 @layer components {
   /* Small caps label above section titles. Letter-spacing is dropped for Bangla, where it breaks conjuncts. */
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-[0.72rem] font-bold uppercase text-coral;
+    @apply inline-flex items-center gap-2.5 rounded-full border border-coral/25 bg-coral/10 px-4 py-1.5 text-[0.7rem] font-bold uppercase text-coral backdrop-blur-sm;
     letter-spacing: 0.26em;
   }
   .eyebrow::before {
     content: "";
-    @apply h-[3px] w-8 rounded-full bg-energy;
+    @apply h-2 w-2 shrink-0 rounded-full bg-coral;
+    box-shadow: 0 0 0 0 rgb(var(--coral) / 0.6);
+    animation: dot-pulse 2s ease-out infinite;
   }
   html[lang="bn"] .eyebrow {
     @apply text-sm font-medium normal-case;
@@ -365,4 +368,50 @@ html[lang="bn"] :is(h1, h2, h3) {
   .card-glow::before {
     animation: none !important;
   }
+}
+
+/* ---- Site-wide rising bubbles (components/ui/bubbles.tsx) ---- */
+.bubbles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 9999px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: bubble-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+/* Soft glass bubble: bright highlight top-left, tinted edge. */
+.bubble-gold { background: radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.9), rgb(var(--gold) / 0.55) 45%, rgb(var(--gold) / 0.15) 75%); }
+.bubble-coral { background: radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.9), rgb(var(--coral) / 0.5) 45%, rgb(var(--coral) / 0.12) 75%); }
+.bubble-magenta { background: radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.9), rgb(var(--magenta) / 0.45) 45%, rgb(var(--magenta) / 0.12) 75%); }
+.bubble-violet { background: radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.9), rgb(var(--violet) / 0.45) 45%, rgb(var(--violet) / 0.12) 75%); }
+.dark .bubble { filter: brightness(0.85); }
+
+@keyframes bubble-rise {
+  0% { transform: translate3d(0, 0, 0) scale(0.8); opacity: 0; }
+  10% { opacity: 0.7; }
+  50% { transform: translate3d(var(--drift, 20px), -55vh, 0) scale(1); }
+  85% { opacity: 0.55; }
+  100% { transform: translate3d(0, -110vh, 0) scale(1.05); opacity: 0; }
+}
+
+/* Fewer bubbles on phones. */
+@media (max-width: 640px) {
+  .bubble:nth-child(even) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubbles { display: none; }
+}
+
+@keyframes dot-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(var(--coral) / 0.55); }
+  100% { box-shadow: 0 0 0 10px rgb(var(--coral) / 0); }
 }
