@@ -1,5 +1,5 @@
-"use client";
-
+// Client-only widget: imported by client components (contact form, admin login), so it needs no
+// "use client" of its own. Keeping it out of the client entry list lets it accept function props.
 import { useEffect, useRef } from "react";
 
 type TurnstileApi = {
@@ -13,7 +13,8 @@ declare global {
   }
 }
 
-const SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+const SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 let scriptPromise: Promise<void> | null = null;
 
 function loadScript(): Promise<void> {
@@ -33,7 +34,9 @@ function loadScript(): Promise<void> {
   return scriptPromise;
 }
 
-export const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+export const turnstileEnabled = Boolean(
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+);
 
 /**
  * Cloudflare Turnstile widget. Invisible unless Cloudflare needs the visitor to interact.

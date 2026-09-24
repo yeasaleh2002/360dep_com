@@ -25,7 +25,11 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={t("common.toggleTheme")}
     >
       {/* Render a stable icon until mounted to avoid a hydration mismatch. */}
-      {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+      {isDark ? (
+        <Sun className="h-[18px] w-[18px]" />
+      ) : (
+        <Moon className="h-[18px] w-[18px]" />
+      )}
     </button>
   );
 }
@@ -36,7 +40,11 @@ export function LocaleToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => setLocale(locale === "bn" ? "en" : "bn")}
-      className={cn(iconButton, "w-auto min-w-10 px-3 text-sm font-semibold", className)}
+      className={cn(
+        iconButton,
+        "w-auto min-w-10 px-3 text-sm font-semibold",
+        className,
+      )}
       aria-label={t("common.toggleLanguage")}
       title={t("common.toggleLanguage")}
     >
