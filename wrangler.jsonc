@@ -1,5 +1,5 @@
 // Cloudflare Worker config. Secrets are never stored here — use `npx wrangler secret put NAME`.
-// Setup steps: DEVELOPER_INSTRUCTIONS.md → "Deploy to Cloudflare".
+// Setup: DEVELOPER_INSTRUCTIONS.md → "Deploy to Cloudflare".
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "dep360-site",
@@ -12,12 +12,11 @@
   // Required by OpenNext for background page rebuilds.
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "dep360-site" }],
 
-  // Page cache — `npx wrangler kv namespace create NEXT_INC_CACHE_KV`, paste the id.
-  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }],
+  // Page cache and cache tags. Ids are filled in automatically by `npm run deploy` (scripts/cf-deploy.mjs).
+  "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV" }],
 
-  // Cache tags — `npx wrangler d1 create dep360-tag-cache`, paste the database_id.
   "d1_databases": [
-    { "binding": "NEXT_TAG_CACHE_D1", "database_name": "dep360-tag-cache", "database_id": "REPLACE_WITH_D1_DATABASE_ID" }
+    { "binding": "NEXT_TAG_CACHE_D1", "database_name": "dep360-tag-cache" }
   ],
 
   // Built-in rate limiting (free). Limits per visitor IP; must match lib/ratelimit.ts.

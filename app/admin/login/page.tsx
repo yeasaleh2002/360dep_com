@@ -6,8 +6,8 @@ import { ThemeToggle } from "@/components/ui/toggles";
 export const metadata: Metadata = { title: "Admin sign in", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const { next } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; email?: string }> }) {
+  const { next, email } = await searchParams;
 
   return (
     <main className="relative flex min-h-svh items-center justify-center bg-bg px-4 py-12">
@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="mt-2 text-sm text-muted">Sign in to manage your website.</p>
         </div>
         <div className="card p-6 sm:p-8">
-          <LoginForm next={next} />
+          <LoginForm next={next} email={typeof email === "string" ? email.slice(0, 200) : undefined} />
         </div>
       </div>
     </main>

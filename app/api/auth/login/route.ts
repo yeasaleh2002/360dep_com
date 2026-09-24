@@ -1,21 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions, signSession } from "@/lib/auth";
 import { getClientIp, isSameOrigin, jsonError, readJson } from "@/lib/api";
-import { sha256Hex, timingSafeEqualBytes, verifyPassword } from "@/lib/password";
+import { adminCredentials, safeEqual } from "@/lib/password";
 import { rateLimit } from "@/lib/ratelimit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { loginSchema } from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
-
-// Verified when no admin hash is configured, so response timing stays the same.
-const DUMMY_HASH = "pbkdf2_sha256:25000:AAAAAAAAAAAAAAAAAAAAAA:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-
-async function safeEqual(a: string, b: string) {
-  const [ha, hb] = await Promise.all([sha256Hex(a), sha256Hex(b)]);
-  const enc = new TextEncoder();
-  return timingSafeEqualBytes(enc.encode(ha), enc.encode(hb));
-}
 
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) return jsonError(403, "Request origin not allowed");
@@ -35,19 +26,18 @@ export async function POST(req: NextRequest) {
       return jsonError(400, "Security check failed. Please complete the check and try again.");
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() ?? "";
-    const hash = process.env.ADMIN_PASSWORD_HASH?.trim() ?? "";
-    if (!adminEmail || !hash) console.error("[auth] ADMIN_EMAIL / ADMIN_PASSWORD_HASH are not configured");
+    const admin = adminCredentials();
+    if (!admin.email || !admin.password) {
+      console.error("[auth] ADMIN_EMAIL / ADMIN_PASSWORD are not configured");
+      return jsonError(503, "Admin login is not set up yet.");
+    }
 
-    const [passwordOk, emailOk] = await Promise.all([
-      verifyPassword(password, hash || DUMMY_HASH),
-      adminEmail ? safeEqual(email, adminEmail) : Promise.resolve(false),
-    ]);
-
-    if (!emailOk || !passwordOk || !hash) return jsonError(401, "Incorrect email or password.");
+    // Both comparisons always run, so timing doesn't reveal which one failed.
+    const [emailOk, passwordOk] = await Promise.all([safeEqual(email, admin.email), safeEqual(password, admin.password)]);
+    if (!emailOk || !passwordOk) return jsonError(401, "Incorrect email or password.");
 
     const res = NextResponse.json({ ok: true });
-    res.cookies.set(SESSION_COOKIE, await signSession(adminEmail), sessionCookieOptions);
+    res.cookies.set(SESSION_COOKIE, await signSession(admin.email), sessionCookieOptions);
     return res;
   } catch (error) {
     console.error("[auth] login failed", error);

@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
+import { credentialFingerprint } from "@/lib/password";
 
 export const SESSION_COOKIE = "dep360_session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days, in seconds
@@ -17,7 +18,7 @@ function getSecret(): Uint8Array {
 export type AdminSession = { email: string; role: "admin" };
 
 export async function signSession(email: string): Promise<string> {
-  return new SignJWT({ role: "admin" })
+  return new SignJWT({ role: "admin", cfp: await credentialFingerprint() })
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setSubject(email)
     .setIssuer(ISSUER)
@@ -36,8 +37,9 @@ export async function verifySession(token: string | undefined | null): Promise<A
       audience: AUDIENCE,
     });
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-    // Changing ADMIN_EMAIL invalidates every existing session.
+    // Changing ADMIN_EMAIL, ADMIN_PASSWORD or JWT_SECRET signs every existing session out.
     if (payload.role !== "admin" || !payload.sub || payload.sub !== adminEmail) return null;
+    if (payload.cfp !== (await credentialFingerprint())) return null;
     return { email: payload.sub, role: "admin" };
   } catch {
     return null;

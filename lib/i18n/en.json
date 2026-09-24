@@ -198,5 +198,28 @@
   },
   "notFound": {
     "redirecting": "We couldn't find that page. Taking you back home…"
+  },
+  "adminGate": {
+    "open": "Admin login",
+    "title": "Admin login",
+    "body": "Enter your admin email address.",
+    "email": "Email address",
+    "submit": "Continue",
+    "checking": "Checking…",
+    "cancel": "Cancel",
+    "notAdmin": "This email is not registered as an admin.",
+    "invalidEmail": "Please enter a valid email address.",
+    "rateLimited": "Too many attempts. Please try again in a minute.",
+    "error": "Could not check right now. Please try again."
+  },
+  "pwa": {
+    "install": "Download the app",
+    "installed": "App installed",
+    "iosTitle": "Install the app",
+    "iosStep1": "Tap the Share button (□↑) below",
+    "iosStep2": "Choose \"Add to Home Screen\"",
+    "otherTitle": "Install the app",
+    "otherBody": "Open your browser menu (⋮) and choose \"Install app\" or \"Add to Home screen\".",
+    "ok": "OK"
   }
 }

@@ -18,6 +18,7 @@ Read top to bottom once; afterwards use it as a reference.
 12. [Troubleshooting](#12-troubleshooting)
 13. [Free-plan limits](#13-free-plan-limits)
 14. [SEO & local search](#14-seo--local-search)
+15. [PWA & footer admin login](#15-pwa--footer-admin-login)
 
 ---
 
@@ -43,7 +44,7 @@ Images:  admin browser (resize + WebP) ─► /api/upload (verify) ─► ImgBB 
 |---|---|
 | Cloudflare Workers + OpenNext | Free, global, auto-scaling. OpenNext is the official way to run Next.js there. |
 | Drizzle ORM + Neon **HTTP** driver | Tiny bundle (fits the free 3 MB limit), no TCP sockets or connection pools, safe parameterised SQL. Prisma was dropped: too large for the free Worker size limit. |
-| PBKDF2 (Web Crypto) for the admin password | bcrypt in JavaScript takes ~250 ms of CPU; the free plan allows ~10 ms per request. PBKDF2 is native and takes ~4 ms. |
+| Plain `ADMIN_PASSWORD` in env | Easy for the owner to change. It lives only in encrypted Cloudflare secrets / local `.env`, is compared in constant time, and a fingerprint of it is stored in each session so changing it signs everyone out. |
 | Image resize in the browser | Workers can't run native image libraries (sharp). The server still verifies every file. |
 | wsrv.nl image resizer | Next's image optimiser doesn't run on Workers and Cloudflare Images is paid. wsrv.nl is free and needs no key. |
 | KV + D1 for the cache | Both are free and need no payment method (R2 needs a card on file). |
@@ -78,7 +79,7 @@ lib/
   resources.ts              per-collection config (table, schema, cache tag)
   validators.ts             ★ Zod schemas for every input (shared by forms and APIs)
   auth.ts                   JWT sign/verify (edge-safe)
-  password.ts               PBKDF2 hashing
+  password.ts               admin credentials, constant-time compare, session fingerprint
   ratelimit.ts              rate limits (Cloudflare binding; in-memory fallback for local dev)
   imgbb.ts                  upload verification + ImgBB upload
   image-presets.ts          image sizes/quality (shared browser/server)
@@ -88,7 +89,7 @@ lib/
   i18n/                     bn.json, en.json, provider + <T> component
   seo/                      district list, keyword generator, district page copy, JSON-LD
 drizzle/                    SQL for the schema (0000_init.sql = full schema for a new database)
-scripts/                    apply-sql, hash-password, check-secrets
+scripts/                    cf-deploy (deploy + KV/D1 setup), check-build-env, apply-sql, check-secrets
 middleware.ts               protects /admin/* and admin APIs
 open-next.config.ts         OpenNext cache setup (KV + D1)
 wrangler.jsonc              Cloudflare Worker config (no secrets)
@@ -106,7 +107,7 @@ In production, set them in Cloudflare (see section 10).
 | `DATABASE_URL` | **yes** | build + runtime | Neon connection string: Neon dashboard → your project → **Connect**. One URL is all you need (see note below). |
 | `JWT_SECRET` | **yes** | runtime | Random string ≥ 32 chars that signs admin sessions. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Changing it signs everyone out. |
 | `ADMIN_EMAIL` | no | runtime | Email used to sign in to `/admin`. |
-| `ADMIN_PASSWORD_HASH` | **yes** | runtime | `npm run hash-password -- "strong-password"`. Never store the plain password. |
+| `ADMIN_PASSWORD` | **yes** | runtime | The admin password, in plain text. Change it any time and redeploy — everyone is signed out. Use 10+ characters. |
 | `IMGBB_API_KEY` | **yes** | runtime | Free key from <https://api.imgbb.com> (sign in → "Get API key"). |
 | `TURNSTILE_SECRET_KEY` | **yes** | runtime | Cloudflare Turnstile secret (free, see below). |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | no | **build** | Turnstile site key (public by design). |
@@ -209,7 +210,7 @@ Admin pages (`/admin/*`) and APIs are always dynamic and never cached.
 
 | Area | Implementation |
 |---|---|
-| Admin login | `POST /api/auth/login` checks the email (constant-time) and password (`lib/password.ts`, PBKDF2-SHA256, 25k iterations), then signs a **JWT (HS256, 7 days)** with `JWT_SECRET`. |
+| Admin login | `POST /api/auth/login` checks the email (constant-time) and `ADMIN_PASSWORD` (`lib/password.ts`, constant-time comparison), then signs a **JWT (HS256, 7 days)** with `JWT_SECRET`. |
 | Session cookie | `dep360_session`: `httpOnly`, `Secure` (production), `SameSite=Strict`. Never readable by JavaScript or stored in localStorage. |
 | Route protection | `middleware.ts` verifies the JWT on every `/admin/*` page and admin API. Every admin handler checks again (`requireAdmin`), and so does the admin layout. |
 | Rate limits | Cloudflare Rate Limiting binding (free): login 5 per minute, contact form 3 per minute, per IP. Configured in `wrangler.jsonc` → `ratelimits`; `lib/ratelimit.ts` falls back to an in-memory limiter under `next dev`/`next start`. Combined with Turnstile (a solved challenge per attempt) this makes password guessing impractical. |
@@ -373,15 +374,7 @@ type Lead = {
 
 Everything below works on the **free plan** with no payment method. There are two ways to deploy: **A** (recommended) builds automatically on every `git push`; **B** deploys from your computer.
 
-### Step 1 — create the cache storage (once)
-
-Dashboard → **Storage & Databases**:
-- **KV** → Create namespace → name it `dep360-page-cache` → copy its **ID**.
-- **D1** → Create database → name it `dep360-tag-cache` → copy its **Database ID**.
-
-(Or from a terminal: `npx wrangler kv namespace create NEXT_INC_CACHE_KV` and `npx wrangler d1 create dep360-tag-cache`.)
-
-Paste both into `wrangler.jsonc` in place of `REPLACE_WITH_KV_NAMESPACE_ID` / `REPLACE_WITH_D1_DATABASE_ID`, then commit and push. These ids are not secret.
+The page cache (Workers **KV**) and cache tags (**D1**) are created automatically by `npm run deploy` on the first deploy (`scripts/cf-deploy.mjs`) and reused afterwards — nothing to create or paste by hand.
 
 ### Option A — automatic deploys from GitHub (Workers Builds)
 
@@ -391,11 +384,11 @@ Paste both into `wrangler.jsonc` in place of `REPLACE_WITH_KV_NAMESPACE_ID` / `R
 
    | Setting | Value |
    |---|---|
-   | Build command | `npx opennextjs-cloudflare build` |
-   | Deploy command | `npx opennextjs-cloudflare deploy` |
+   | Build command | `npm run build` (the default) |
+   | Deploy command | **`npm run deploy`** (change it from `npx wrangler deploy`) |
    | Root directory | `/` |
 
-   The default `npm run build` only runs `next build` and can't produce a Worker.
+   `npx wrangler deploy` alone would skip the cache setup and admin edits would never reach the live site.
 3. **Build variables** — Settings → **Build** → **Variables and secrets** (the build pre-renders pages from the database and bakes in the public values):
 
    | Name | Type |
@@ -408,7 +401,7 @@ Paste both into `wrangler.jsonc` in place of `REPLACE_WITH_KV_NAMESPACE_ID` / `R
    | `NEXT_PUBLIC_SITE_URL` | Text (optional) |
 4. **Runtime secrets** — Settings → **Variables and Secrets** (what the live site uses; separate from build variables):
 
-   `DATABASE_URL`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `IMGBB_API_KEY`, `TURNSTILE_SECRET_KEY` — all as **Secret**.
+   `DATABASE_URL`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `IMGBB_API_KEY`, `TURNSTILE_SECRET_KEY` — all as **Secret**.
 5. Push to `main` (or click **Retry build**). Each push now builds and deploys automatically.
 
 If something is missing, the build stops in the first seconds with a message saying exactly what to add (`scripts/check-build-env.mjs`).
@@ -417,9 +410,9 @@ If something is missing, the build stops in the first seconds with a message say
 
 ```bash
 npx wrangler login
-npx wrangler secret put DATABASE_URL        # repeat for JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD_HASH,
+npx wrangler secret put DATABASE_URL        # repeat for JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD,
                                             # IMGBB_API_KEY, TURNSTILE_SECRET_KEY
-npm run deploy                              # builds with your local .env, uploads, fills the page cache
+npm run build && npm run deploy             # builds with your local .env, uploads, fills the page cache
 ```
 Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE_URL` are read at build time.
 
@@ -446,7 +439,7 @@ Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE
 
 **Change colours/fonts:** CSS variables at the top of `app/globals.css`; fonts in `app/fonts.ts`.
 
-**Change the admin password:** `npm run hash-password -- "new password"` → update `ADMIN_PASSWORD_HASH` in `.env` and in Cloudflare (`npx wrangler secret put ADMIN_PASSWORD_HASH`).
+**Change the admin password:** edit `ADMIN_PASSWORD` in `.env` and in Cloudflare (Worker → Settings → Variables and Secrets, or `npx wrangler secret put ADMIN_PASSWORD`). All existing sessions are signed out automatically.
 
 ---
 
@@ -463,7 +456,8 @@ Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE
 | Login says the check failed | Turnstile keys are missing or don't match the domain. For local testing use the test keys in section 3. |
 | "Too many attempts" | The rate limit resets after one minute. |
 | Cloudflare build: "DATABASE_URL is missing at build time" | Add it under Settings → Build → Variables and secrets (build variables are separate from runtime secrets). See section 10. |
-| Cloudflare build ran `next build` only / deploy can't find `.open-next/worker.js` | Set Build command `npx opennextjs-cloudflare build` and Deploy command `npx opennextjs-cloudflare deploy`. |
+| Deploy can't find `.open-next/worker.js` | Build command must be `npm run build`. |
+| Admin edits don't show on the live site | Deploy command must be `npm run deploy`, not `npx wrangler deploy` (that skips the cache setup). |
 | Build warnings about `CompressionStream` in `jose` | Harmless — that part of the library (encrypted JWTs) is never used. |
 | Worker exceeds the size limit | Check with `npx wrangler deploy --dry-run`. Currently ~1.4 MB gzipped against the 3 MB free limit. Avoid large server-side dependencies. |
 | A dynamic page returns 404 after an admin edit | Don't add `export const dynamicParams = false` to pages that read cached data — in Next 15 a tag revalidation then makes them 404 (`NoFallbackError`). Handle unknown params with `notFound()` instead (see `app/(public)/areas/[slug]/page.tsx`). |
@@ -512,3 +506,24 @@ Goal: appear for Bangla and English searches like *"যশোরের সের
 5. Share district pages on your Facebook page and in local groups; links from local sites help.
 
 Rankings take weeks to months to build and can't be guaranteed by any code; the pieces above give the site everything search engines look for.
+
+---
+
+## 15. PWA & footer admin login
+
+**Installable app.** `app/manifest.ts` (name, colours, shortcuts), icons in `public/icons/`, service worker `public/sw.js` (registered by `components/public/install-app.tsx` in production only):
+- pages: network first, last cached copy or `/offline` when there is no connection;
+- `/_next/static` and icons: cache first; `/admin` and `/api` are never cached.
+- The footer's **"অ্যাপ ডাউনলোড করুন / Download the app"** button uses the browser's install prompt (Android/Chrome/Edge); on iPhone it shows the "Share → Add to Home Screen" steps. It shows "App installed" once installed.
+- After changing `sw.js`, bump `VERSION` inside it so old caches are cleared.
+
+**Footer "Admin login".** Opens a modal asking for an email → `POST /api/auth/check-email`:
+- the admin email → redirected to `/admin/login?email=…` (email pre-filled, password focused);
+- any other email → modal closes and an error is shown; the visitor stays on the page.
+- Rate-limited per IP, constant-time comparison. `/admin/login` itself still works directly (bookmark it).
+
+```ts
+// POST /api/auth/check-email  { email: string }
+// 200 { ok: true, redirect: "/admin/login?email=..." }
+// 403 { error: "adminGate.notAdmin" } · 422 { error: "adminGate.invalidEmail" } · 429 { error: "adminGate.rateLimited" }
+```

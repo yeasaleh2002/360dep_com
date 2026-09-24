@@ -31,6 +31,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: SEO_TITLE, description: SEO_DESCRIPTION },
   robots: { index: true, follow: true },
   formatDetection: { telephone: false },
+  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "360DEP", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

@@ -6,18 +6,17 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/check-build-env.mjs",
-    "build": "next build",
+    "build": "opennextjs-cloudflare build",
+    "build:next": "next build",
     "start": "next start",
+    "preview": "opennextjs-cloudflare preview",
+    "deploy": "node scripts/cf-deploy.mjs",
     "typecheck": "tsc --noEmit",
-    "cf:build": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "db:studio": "drizzle-kit studio",
-    "hash-password": "tsx scripts/hash-password.mts",
-    "check-secrets": "node scripts/check-secrets.mjs",
     "db:generate": "drizzle-kit generate",
-    "db:apply": "tsx --env-file=.env scripts/apply-sql.mts"
+    "db:apply": "tsx --env-file=.env scripts/apply-sql.mts",
+    "db:studio": "drizzle-kit studio",
+    "check-secrets": "node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

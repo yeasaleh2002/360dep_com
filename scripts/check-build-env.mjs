@@ -1,4 +1,4 @@
-// Runs automatically before `next build` (npm "prebuild") and fails early with clear instructions.
+// Runs automatically before `npm run build` and fails early with clear instructions.
 import fs from "node:fs";
 
 if (fs.existsSync(".env")) process.loadEnvFile(".env");
@@ -18,8 +18,7 @@ if (!process.env.DATABASE_URL) {
   errors.push(
     "DATABASE_URL is missing at build time (public pages are pre-rendered from the database).\n" +
       (inCloudflareCI
-        ? "  Cloudflare dashboard → your Worker → Settings → Build → Variables and secrets → add DATABASE_URL (type: Secret).\n" +
-          "  Build variables are separate from the Worker's runtime secrets — it must be set in both places."
+        ? "  Cloudflare dashboard → your Worker → Settings → Build → Variables and secrets → add DATABASE_URL (type: Secret)."
         : "  Add DATABASE_URL to your .env file."),
   );
 }
@@ -28,15 +27,11 @@ for (const key of ["NEXT_PUBLIC_WHATSAPP_NUMBER", "NEXT_PUBLIC_TURNSTILE_SITE_KE
   if (!process.env[key]) warnings.push(`${key} is not set — it is baked in at build time (add it as a build variable).`);
 }
 
-if (inCloudflareCI) {
-  const wrangler = fs.readFileSync("wrangler.jsonc", "utf8");
-  if (wrangler.includes("REPLACE_WITH_")) {
-    errors.push(
-      "wrangler.jsonc still has placeholder KV / D1 ids.\n" +
-        "  Create them once (dashboard → Storage & Databases, or `npx wrangler kv namespace create NEXT_INC_CACHE_KV`\n" +
-        "  and `npx wrangler d1 create dep360-tag-cache`), paste the ids into wrangler.jsonc and push.",
-    );
-  }
+// Only checked locally: in Cloudflare CI the admin login values are runtime secrets, not build variables.
+if (!inCloudflareCI) {
+  const password = process.env.ADMIN_PASSWORD ?? "";
+  if (!process.env.ADMIN_EMAIL || !password) warnings.push("ADMIN_EMAIL / ADMIN_PASSWORD are not set — admin login will be disabled.");
+  else if (password.length < 10) warnings.push("ADMIN_PASSWORD is shorter than 10 characters — consider a longer one.");
 }
 
 for (const w of warnings) console.warn(`⚠  ${w}`);

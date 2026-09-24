@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { T } from "@/lib/i18n";
 import { WhatsAppButton } from "@/components/public/whatsapp-button";
+import { AdminGate } from "@/components/public/admin-gate";
+import { InstallAppButton } from "@/components/public/install-app";
 import { NAV_ITEMS } from "@/lib/nav";
 import { AREAS } from "@/lib/seo/areas";
 
@@ -49,8 +51,9 @@ export function Footer() {
           <p className="mt-6 text-[0.95rem] leading-relaxed">
             <T k="footer.getInTouchBody" />
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
             <WhatsAppButton />
+            <InstallAppButton />
           </div>
         </div>
       </div>
@@ -71,11 +74,14 @@ export function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="container flex flex-col items-center justify-between gap-2 py-6 text-sm text-white/50 sm:flex-row">
+        <div className="container flex flex-col items-center justify-between gap-3 py-6 text-sm text-white/50 sm:flex-row">
           <p>
             © {year} 360DEP. <T k="footer.rights" />
           </p>
-          <p>360dep.com</p>
+          <div className="flex items-center gap-5">
+            <AdminGate />
+            <span>360dep.com</span>
+          </div>
         </div>
       </div>
     </footer>

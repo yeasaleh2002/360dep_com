@@ -15,7 +15,7 @@ function safeNext(next: string | undefined) {
   return next && /^\/admin(\/[\w-]*)*$/.test(next) && next !== "/admin/login" ? next : "/admin/dashboard";
 }
 
-export function LoginForm({ next }: { next?: string }) {
+export function LoginForm({ next, email }: { next?: string; email?: string }) {
   const [token, setToken] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function LoginForm({ next }: { next?: string }) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
+  } = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: email ?? "", password: "" } });
 
   const onSubmit = async (values: LoginValues) => {
     setError(null);
@@ -69,6 +69,7 @@ export function LoginForm({ next }: { next?: string }) {
         <div className="relative">
           <input
             id="password"
+            autoFocus={Boolean(email)}
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             className="field pr-12"

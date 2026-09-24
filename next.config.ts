@@ -9,6 +9,8 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://i.ibb.co https://*.ibb.co https://wsrv.nl https://i.ytimg.com https://*.clarity.ms https://c.bing.com",
   "font-src 'self' data:",
+  "worker-src 'self'",
+  "manifest-src 'self'",
   "connect-src 'self' https://*.clarity.ms https://c.bing.com https://challenges.cloudflare.com",
   "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
   "object-src 'none'",
@@ -53,6 +55,7 @@ const nextConfig: NextConfig = {
         ],
       },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
     ];
   },
 };
