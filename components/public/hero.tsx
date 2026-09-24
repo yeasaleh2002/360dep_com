@@ -23,17 +23,20 @@ export function Hero({ banners }: { banners: PublicBanner[] }) {
 /** Typographic hero shown until the first banner is uploaded. */
 function FallbackHero() {
   return (
-    <section className="relative isolate overflow-hidden bg-night text-white">
+    <section className="hero-aurora relative isolate overflow-hidden bg-night text-white">
       <div aria-hidden className="absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-1/2 h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.06]" />
-        <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgb(var(--gold)/0.22)]" />
-        <div className="absolute left-1/2 top-1/2 h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--gold)/0.14),transparent_60%)]" />
+        <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2">
+          <div className="h-full w-full animate-spin-slow rounded-full border-2 border-dashed border-[rgb(var(--coral)/0.35)]" />
+        </div>
+        <div className="absolute left-1/2 top-1/2 h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--magenta)/0.18),transparent_60%)]" />
       </div>
+      <div aria-hidden className="sparkles" />
       <div className="container flex min-h-[560px] flex-col items-center justify-center py-24 text-center sm:min-h-[640px] lg:min-h-[min(calc(100svh-72px),880px)]">
         <p className="eyebrow !text-[rgb(var(--gold))]">
           <T k="hero.eyebrow" />
         </p>
-        <h1 className="mt-7 max-w-4xl text-[2.6rem] font-medium leading-[1.1] !text-white sm:text-6xl lg:text-7xl">
+        <h1 className="animate-rise mt-7 max-w-4xl text-[2.6rem] font-medium leading-[1.1] !text-white sm:text-6xl lg:text-7xl">
           <T k="hero.title" />
         </h1>
         <p className="mt-7 max-w-2xl text-base text-white/70 sm:text-lg">

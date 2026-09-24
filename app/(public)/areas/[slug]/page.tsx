@@ -35,13 +35,14 @@ export default async function AreaPage({ params }: Props) {
   if (!area) notFound();
   const c = areaContent(area);
   const services = await getServices();
-  const others = AREAS.filter((a) => a.slug !== area.slug);
+  // Core districts first, then same-division neighbours.
+  const others = AREAS.filter((a) => a.slug !== area.slug && (a.core || a.division === area.division));
 
   return (
     <>
       <JsonLd data={areaJsonLd(area, c.faqs)} />
 
-      <section className="paper-grain relative overflow-hidden border-b border-line/70">
+      <section className="hero-aurora relative overflow-hidden border-b border-line/70">
         <div className="container relative py-16 sm:py-20 lg:py-24">
           <nav aria-label="Breadcrumb" className="text-sm text-muted">
             <Link href="/" className="hover:text-ink">হোম</Link> / <Link href="/areas" className="hover:text-ink">সেবা এলাকা</Link> / {area.bn}
@@ -123,6 +124,11 @@ export default async function AreaPage({ params }: Props) {
               </li>
             ))}
           </ul>
+          <p className="mt-8 text-center">
+            <Link href="/areas" className="link-underline text-sm">
+              সারা বাংলাদেশের ৬৪ জেলা দেখুন · All 64 districts
+            </Link>
+          </p>
         </div>
       </section>
 

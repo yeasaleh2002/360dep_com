@@ -23,7 +23,7 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-for (const key of ["NEXT_PUBLIC_WHATSAPP_NUMBER", "NEXT_PUBLIC_TURNSTILE_SITE_KEY", "NEXT_PUBLIC_CLARITY_PROJECT_ID"]) {
+for (const key of ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "NEXT_PUBLIC_CLARITY_PROJECT_ID"]) {
   if (!process.env[key]) warnings.push(`${key} is not set — it is baked in at build time (add it as a build variable).`);
 }
 
@@ -32,6 +32,13 @@ if (!inCloudflareCI) {
   const password = process.env.ADMIN_PASSWORD ?? "";
   if (!process.env.ADMIN_EMAIL || !password) warnings.push("ADMIN_EMAIL / ADMIN_PASSWORD are not set — admin login will be disabled.");
   else if (password.length < 10) warnings.push("ADMIN_PASSWORD is shorter than 10 characters — consider a longer one.");
+}
+
+if (!/^\d{8,15}$/.test((process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, ""))) {
+  errors.push(
+    "NEXT_PUBLIC_WHATSAPP_NUMBER is missing or invalid (country code + number, e.g. 8801XXXXXXXXX).\n" +
+      "  Without it the contact form can't send the enquiry to your WhatsApp. Add it as a build variable.",
+  );
 }
 
 for (const w of warnings) console.warn(`⚠  ${w}`);

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { Hero } from "@/components/public/hero";
+import { EnergyRibbon } from "@/components/public/energy-ribbon";
 import { ServiceCard } from "@/components/public/service-card";
 import { TeamCard } from "@/components/public/team-card";
 import { ClientsMarquee } from "@/components/public/client-logo";
@@ -11,7 +12,9 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
 import { T, type TKey } from "@/lib/i18n";
 import { getBanners, getClients, getGalleryPreview, getServices, getTeam } from "@/lib/data";
-import { AREAS } from "@/lib/seo/areas";
+import { AREAS, CORE } from "@/lib/seo/areas";
+
+const OTHERS = AREAS.filter((a) => !a.core);
 
 const PILLARS: { title: TKey; body: TKey }[] = [
   { title: "home.pillar1Title", body: "home.pillar1Body" },
@@ -43,6 +46,7 @@ export default async function HomePage() {
 
       {/* 1 · Banner */}
       <Hero banners={banners} />
+      <EnergyRibbon items={services.map((s) => s.title)} />
 
       {/* 2 · About */}
       <section className="section">
@@ -64,8 +68,8 @@ export default async function HomePage() {
           </Reveal>
           <ol className="grid gap-4 self-center">
             {PILLARS.map((pillar, i) => (
-              <Reveal as="li" key={pillar.title} delay={0.1 * i} className="card flex gap-5 p-6 sm:p-7">
-                <span className="font-display text-3xl leading-none text-gold">0{i + 1}</span>
+              <Reveal as="li" key={pillar.title} delay={0.1 * i} className="card-glow flex gap-5 p-6 sm:p-7">
+                <span className="text-gradient font-display text-4xl font-extrabold leading-none">0{i + 1}</span>
                 <div>
                   <h3 className="text-xl font-medium sm:text-2xl">
                     <T k={pillar.title} />
@@ -108,21 +112,32 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Team — shown only once the admin adds team members */}
-      {team.length > 0 && (
-        <section className="section">
-          <div className="container">
-            <SectionHeading eyebrow="home.teamEyebrow" title="home.teamTitle" subtitle="home.teamSubtitle" />
+      {/* Team */}
+      <section className="section relative overflow-hidden">
+        <div aria-hidden className="blob blob-gold -left-40 top-10" />
+        <div className="container relative">
+          <SectionHeading eyebrow="home.teamEyebrow" title="home.teamTitle" subtitle="home.teamSubtitle" />
+          {team.length > 0 ? (
             <div className="mt-14 grid grid-cols-2 gap-x-5 gap-y-12 sm:grid-cols-3 lg:mt-16 lg:grid-cols-4 lg:gap-x-8">
-              {team.map((member, i) => (
+              {team.slice(0, 8).map((member, i) => (
                 <Reveal key={member.id} delay={(i % 4) * 0.08}>
                   <TeamCard member={member} />
                 </Reveal>
               ))}
             </div>
+          ) : (
+            <p className="mt-12 text-center text-muted">
+              <T k="team.empty" />
+            </p>
+          )}
+          <div className="mt-14 text-center">
+            <Link href="/team" className="btn-outline">
+              <T k="team.viewAll" />
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* 4 · Previous clients slider */}
       {clients.length > 0 && (
@@ -170,25 +185,50 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Service areas (internal links for local search) */}
-      <section className="border-t border-line/70 py-14 sm:py-16">
+      {/* Service areas: core districts first, then the rest of Bangladesh */}
+      <section className="relative overflow-hidden border-t border-line/70 py-16 sm:py-20">
         <div className="container text-center">
-          <h2 className="text-2xl font-medium sm:text-3xl">যশোর ও খুলনা বিভাগের সব জেলায় আমরা আছি</h2>
+          <p className="eyebrow justify-center">সেবা এলাকা · Service areas</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl">
+            সারা বাংলাদেশে, <span className="text-gradient">৬৪ জেলায়</span> আমরা আছি
+          </h2>
           <p className="mt-2 text-muted" lang="en">
-            Event management across Jashore and the Khulna division
+            Event management across Bangladesh — based in Jashore
           </p>
-          <ul className="mt-8 flex flex-wrap justify-center gap-2">
-            {AREAS.map((a) => (
+          <ul className="mt-10 flex flex-wrap justify-center gap-2.5">
+            {CORE.map((a) => (
               <li key={a.slug}>
                 <Link
                   href={`/areas/${a.slug}`}
-                  className="inline-flex rounded-full border border-line px-4 py-2 text-sm transition hover:border-gold hover:text-gold-strong"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-bg transition hover:-translate-y-0.5 hover:bg-gold-strong dark:bg-gold dark:text-night"
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  {a.bn}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mask-fade-x mt-8 overflow-hidden">
+          <ul className="flex w-max animate-marquee gap-2.5 [--marquee-duration:90s] hover:[animation-play-state:paused]">
+            {[...OTHERS, ...OTHERS].map((a, i) => (
+              <li key={`${a.slug}-${i}`} aria-hidden={i >= OTHERS.length}>
+                <Link
+                  href={`/areas/${a.slug}`}
+                  tabIndex={i >= OTHERS.length ? -1 : undefined}
+                  className="inline-flex whitespace-nowrap rounded-full border border-line px-4 py-2 text-sm transition hover:border-gold hover:text-gold-strong"
                 >
                   {a.bn} · {a.en}
                 </Link>
               </li>
             ))}
           </ul>
+        </div>
+        <div className="mt-10 text-center">
+          <Link href="/areas" className="btn-gold">
+            ৬৪ জেলার সব এলাকা দেখুন
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 

@@ -29,6 +29,7 @@
     "home": "Home",
     "about": "About",
     "services": "Services",
+    "team": "Team",
     "gallery": "Gallery",
     "clients": "Clients",
     "contact": "Contact"
@@ -115,7 +116,8 @@
     "customBody": "Every event is different. Tell us your idea and we'll put together a plan just for it."
   },
   "team": {
-    "empty": "Team profiles are coming soon."
+    "empty": "Team profiles are coming soon.",
+    "viewAll": "Meet the whole team"
   },
   "clients": {
     "eyebrow": "Our clients",
@@ -177,7 +179,8 @@
     "waPhone": "Phone",
     "waEmail": "Email",
     "waService": "Service",
-    "waMessage": "Details"
+    "waMessage": "Details",
+    "waSubject": "Subject"
   },
   "errors": {
     "required": "Please fill in this field",

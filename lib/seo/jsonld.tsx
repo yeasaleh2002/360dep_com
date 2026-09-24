@@ -1,4 +1,4 @@
-import { AREAS, type Area } from "@/lib/seo/areas";
+import { CORE, type Area } from "@/lib/seo/areas";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://360dep.com";
 
@@ -20,7 +20,10 @@ export function businessJsonLd(serviceNames: string[] = []) {
     logo: `${SITE_URL}/icon.svg`,
     telephone: phone(),
     address: { "@type": "PostalAddress", addressLocality: "Jashore", addressRegion: "Khulna", addressCountry: "BD" },
-    areaServed: AREAS.map((a) => ({ "@type": "AdministrativeArea", name: `${a.en} District`, alternateName: a.bn })),
+    areaServed: [
+      { "@type": "Country", name: "Bangladesh", alternateName: "বাংলাদেশ" },
+      ...CORE.map((a) => ({ "@type": "AdministrativeArea", name: `${a.en} District`, alternateName: a.bn })),
+    ],
     knowsLanguage: ["bn", "en"],
     ...(serviceNames.length
       ? {

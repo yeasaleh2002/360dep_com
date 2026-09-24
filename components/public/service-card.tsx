@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function ServiceCard({ service, full = false }: { service: PublicService; full?: boolean }) {
   return (
-    <article id={service.slug} className="card group flex h-full scroll-mt-28 flex-col overflow-hidden transition duration-500 hover:-translate-y-1 hover:shadow-lift">
+    <article id={service.slug} className="card-glow group flex h-full scroll-mt-28 flex-col overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
         {service.imageUrl ? (
           <Image

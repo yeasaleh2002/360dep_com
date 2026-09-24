@@ -25,15 +25,15 @@ export function BannerSlide({ banner, priority = false }: { banner: PublicBanner
         <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.55),rgb(0_0_0/0.25)_70%)] px-6">
           <div className="max-w-3xl text-center text-white">
             {banner.title && (
-              <h2 className="font-display text-4xl font-medium leading-tight !text-white drop-shadow-sm sm:text-5xl lg:text-6xl">
+              <h2 className="animate-rise font-display text-4xl font-medium leading-tight !text-white drop-shadow-md sm:text-5xl lg:text-6xl">
                 {banner.title}
               </h2>
             )}
             {banner.title && banner.description && (
-              <span aria-hidden className="mx-auto my-5 block h-px w-16 bg-[rgb(var(--gold))]" />
+              <span aria-hidden className="animate-rise mx-auto my-5 block h-1 w-20 rounded-full bg-energy [animation-delay:150ms]" />
             )}
             {banner.description && (
-              <p className="mx-auto max-w-2xl whitespace-pre-line text-base text-white/85 sm:text-lg lg:text-xl">
+              <p className="animate-rise mx-auto max-w-2xl whitespace-pre-line text-base text-white/90 [animation-delay:300ms] sm:text-lg lg:text-xl">
                 {banner.description}
               </p>
             )}

@@ -3,9 +3,9 @@ import { T, type TKey } from "@/lib/i18n";
 /** Header band for inner pages. */
 export function PageHero({ eyebrow, title, subtitle }: { eyebrow: TKey; title: TKey; subtitle?: TKey }) {
   return (
-    <section className="paper-grain relative overflow-hidden border-b border-line/70">
-      <div aria-hidden className="pointer-events-none absolute -right-32 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full border border-gold/25" />
-      <div aria-hidden className="pointer-events-none absolute -right-10 top-1/2 h-[260px] w-[260px] -translate-y-1/2 rounded-full border border-line" />
+    <section className="hero-aurora relative overflow-hidden border-b border-line/70">
+      <div aria-hidden className="pointer-events-none absolute -right-32 top-1/2 h-[420px] w-[420px] -translate-y-1/2 animate-spin-slow rounded-full border-2 border-dashed border-coral/30" />
+      <div aria-hidden className="pointer-events-none absolute -right-10 top-1/2 h-[260px] w-[260px] -translate-y-1/2 animate-float-y rounded-full bg-energy opacity-20" />
       <div className="container relative py-16 sm:py-20 lg:py-28">
         <p className="eyebrow">
           <T k={eyebrow} />

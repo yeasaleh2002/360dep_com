@@ -9,6 +9,8 @@ export function CtaSection() {
       <div className="container">
         <Reveal>
           <div className="relative isolate overflow-hidden rounded-[2rem] bg-night px-6 py-16 text-center sm:px-12 sm:py-20 lg:py-24">
+            <div aria-hidden className="sparkles" />
+            <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-energy" />
             <div aria-hidden className="absolute inset-0 -z-10">
               <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full border border-[rgb(var(--gold)/0.25)]" />
               <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full border border-white/5" />

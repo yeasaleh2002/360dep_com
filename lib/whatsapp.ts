@@ -1,7 +1,10 @@
 /** WhatsApp deep links. NEXT_PUBLIC_* values are inlined at build time, so this is client-safe. */
 
 function whatsappNumber(): string {
-  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "");
+  const number = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, "");
+  if (number) return number;
+  // Fall back to a number inside the profile link (wa.me/8801…). wa.me/qr/… links can't carry a message.
+  return (process.env.NEXT_PUBLIC_WHATSAPP_PROFILE_LINK ?? "").match(/wa\.me\/(\d{8,15})/)?.[1] ?? "";
 }
 
 /** `https://wa.me/<number>?text=<encoded>` — encodeURIComponent keeps Bangla and emoji intact. */

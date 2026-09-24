@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { LocaleToggle, ThemeToggle } from "@/components/ui/toggles";
@@ -12,6 +12,8 @@ import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 export function Header() {
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.3 });
   const pathname = usePathname();
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
@@ -131,6 +133,7 @@ export function Header() {
           </motion.nav>
         )}
       </AnimatePresence>
+      <motion.div aria-hidden style={{ scaleX: progress }} className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-energy" />
     </header>
   );
 }

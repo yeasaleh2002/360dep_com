@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/icons";
-import { Turnstile, turnstileEnabled } from "@/components/ui/turnstile";
+import { Turnstile } from "@/components/ui/turnstile";
 import { useLocale } from "@/lib/i18n";
 import { contactSchema, OTHER_SERVICE, type ContactInput } from "@/lib/validators";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -38,52 +38,53 @@ export function ContactForm({ services }: { services: ServiceOption[] }) {
     const lines = [
       `*${t("contact.waHeader")}*`,
       "",
-      `*${t("contact.waName")}:* ${data.name}`,
-      `*${t("contact.waPhone")}:* ${data.phone}`,
+      `*${t("contact.waSubject")}:* ${serviceLabel || "-"}`,
+      `*${t("contact.waName")}:* ${data.name.trim()}`,
+      `*${t("contact.waPhone")}:* ${data.phone.trim()}`,
     ];
-    if (data.email) lines.push(`*${t("contact.waEmail")}:* ${data.email}`);
-    lines.push(`*${t("contact.waService")}:* ${serviceLabel}`);
+    if (data.email?.trim()) lines.push(`*${t("contact.waEmail")}:* ${data.email.trim()}`);
     if (data.message?.trim()) lines.push("", `*${t("contact.waMessage")}:*`, data.message.trim());
     return lines.join("\n");
   };
 
+  // Saves the enquiry for the admin inbox. Never blocks WhatsApp: slow or failed saves are ignored.
+  const saveLead = async (data: ContactInput): Promise<"ok" | "invalid" | "failed"> => {
+    try {
+      const res = await Promise.race([
+        fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...data, turnstileToken: token ?? undefined }),
+          keepalive: true,
+        }),
+        new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 4000)),
+      ]);
+      if (!res) return "failed";
+      if (res.status === 422) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        setServerError(t(json.error ?? "contact.error"));
+        return "invalid";
+      }
+      return res.ok ? "ok" : "failed";
+    } catch {
+      return "failed";
+    }
+  };
+
   const onSubmit = async (data: ContactInput) => {
     setServerError(null);
-    if (turnstileEnabled && !token) {
-      setServerError(t("contact.captchaPending"));
-      return;
-    }
+    const serviceLabel =
+      data.service === OTHER_SERVICE ? (data.customService ?? "").trim() : (services.find((s) => s.id === data.service)?.title ?? "");
+    const link = whatsappLink(buildWhatsAppMessage(data, serviceLabel));
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, turnstileToken: token ?? undefined }),
-      });
-      const json = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setServerError(t(json.error ?? "contact.error"));
-        setResetKey((k) => k + 1); // tokens are single-use
-        return;
-      }
+    const saved = await saveLead(data);
+    setResetKey((k) => k + 1); // Turnstile tokens are single-use
+    if (saved === "invalid") return;
 
-      const serviceLabel =
-        data.service === OTHER_SERVICE
-          ? (data.customService ?? "")
-          : (services.find((s) => s.id === data.service)?.title ?? "");
-      const link = whatsappLink(buildWhatsAppMessage(data, serviceLabel));
-      setSentLink(link);
-      reset();
-      setResetKey((k) => k + 1);
-
-      // Prefer a new tab; if the browser blocks it (common after an await), go there directly.
-      const win = window.open(link, "_blank");
-      if (win) win.opener = null;
-      else window.location.assign(link);
-    } catch {
-      setServerError(t("contact.error"));
-      setResetKey((k) => k + 1);
-    }
+    setSentLink(link);
+    reset();
+    // Same-tab navigation is never blocked as a popup, on any phone or browser.
+    window.location.assign(link);
   };
 
   if (sentLink) {

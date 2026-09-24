@@ -1,7 +1,7 @@
 // Bangla + English search phrases, generated per page so no single page carries the whole list.
 // Google ignores <meta name="keywords">; the real ranking signals are the area pages' content,
 // titles and structured data. These lists mainly help other search engines.
-import { AREAS, type Area } from "@/lib/seo/areas";
+import { AREAS, CORE, type Area } from "@/lib/seo/areas";
 
 const BN_SERVICES = [
   "ইভেন্ট ম্যানেজমেন্ট",
@@ -100,8 +100,10 @@ export function generalKeywords(): string[] {
     "wedding decoration Bangladesh",
     "event management near me",
     "wedding planner near me",
-    ...AREAS.map((a) => `${a.bn} ইভেন্ট ম্যানেজমেন্ট`),
-    ...AREAS.map((a) => `event management ${a.en}`),
+    "সারা বাংলাদেশে ইভেন্ট ম্যানেজমেন্ট",
+    "event management all over Bangladesh",
+    ...CORE.map((a) => `${a.bn} ইভেন্ট ম্যানেজমেন্ট`),
+    ...CORE.map((a) => `event management ${a.en}`),
   ];
 }
 

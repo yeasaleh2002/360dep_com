@@ -3,8 +3,8 @@
 import type { Area } from "@/lib/seo/areas";
 
 export function areaContent(area: Area) {
-  const upBn = area.upazilasBn.join(", ");
-  const upEn = area.upazilasEn.join(", ");
+  const upBn = area.upazilasBn.length ? area.upazilasBn.join(", ") : `${area.bn} সদরসহ সব উপজেলায়`;
+  const upEn = area.upazilasEn.length ? area.upazilasEn.join(", ") : `${area.en} Sadar and every upazila`;
 
   return {
     titleBn: `${area.bnIn} ইভেন্ট ম্যানেজমেন্ট ও বিয়ের আয়োজন`,

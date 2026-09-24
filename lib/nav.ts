@@ -5,6 +5,7 @@ export const NAV_ITEMS: { href: string; key: TKey }[] = [
   { href: "/", key: "nav.home" },
   { href: "/about", key: "nav.about" },
   { href: "/services", key: "nav.services" },
+  { href: "/team", key: "nav.team" },
   { href: "/gallery", key: "nav.gallery" },
   { href: "/clients", key: "nav.clients" },
   { href: "/contact", key: "nav.contact" },

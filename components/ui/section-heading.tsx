@@ -23,6 +23,7 @@ export function SectionHeading({
       <h2 className="mt-5 text-[2.1rem] font-medium sm:text-[2.6rem] lg:text-5xl">
         <T k={title} />
       </h2>
+      <span aria-hidden className={cn("mt-5 block h-1 w-20 rounded-full bg-energy", align === "center" && "mx-auto")} />
       {subtitle && (
         <p className="mt-5 text-base text-muted sm:text-lg">
           <T k={subtitle} />

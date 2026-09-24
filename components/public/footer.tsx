@@ -5,7 +5,7 @@ import { WhatsAppButton } from "@/components/public/whatsapp-button";
 import { AdminGate } from "@/components/public/admin-gate";
 import { InstallAppButton } from "@/components/public/install-app";
 import { NAV_ITEMS } from "@/lib/nav";
-import { AREAS } from "@/lib/seo/areas";
+import { CORE } from "@/lib/seo/areas";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -63,13 +63,18 @@ export function Footer() {
           সেবা এলাকা · Service areas
         </h2>
         <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          {AREAS.map((a) => (
+          {CORE.map((a) => (
             <li key={a.slug}>
               <Link href={`/areas/${a.slug}`} className="transition hover:text-white">
                 {a.bnIn} ইভেন্ট ম্যানেজমেন্ট
               </Link>
             </li>
           ))}
+          <li>
+            <Link href="/areas" className="font-semibold text-[rgb(var(--gold))] transition hover:text-white">
+              সারা বাংলাদেশ · ৬৪ জেলা →
+            </Link>
+          </li>
         </ul>
       </div>
 

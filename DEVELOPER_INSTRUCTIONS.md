@@ -497,7 +497,7 @@ Goal: appear for Bangla and English searches like *"যশোরের সের
 | Internal links | Home ("সব জেলায় আমরা আছি"), footer, each district page | Helps search engines find and rank the district pages. |
 | Sitemap | `app/sitemap.ts` | Includes `/areas` and all district pages. |
 
-**Add a district:** add an entry to `AREAS` in `lib/seo/areas.ts` (slug, English + Bangla names incl. `bnIn`/`bnOf` forms, upazilas). The page, keywords, sitemap entry, footer/home links and JSON-LD are generated automatically.
+**Districts:** all 64 are in `lib/seo/areas.ts`. `CORE_AREAS` (with upazilas) are the home region and always appear first; the rest are generated from `OTHER_DISTRICTS`, with Bangla case endings built by `bnForms()`. To promote a district to core, move it into `CORE_AREAS`. Older note — **add a district:** add an entry (slug, English + Bangla names incl. `bnIn`/`bnOf` forms, upazilas). The page, keywords, sitemap entry, footer/home links and JSON-LD are generated automatically.
 
 **Do these after launch (free, and they matter more than any code):**
 1. **Google Business Profile** (<https://business.google.com>) — create a profile for 360DEP in Jashore, category "Event planner" / "Wedding planner", list the service-area districts, add real photos, and ask happy clients for Google reviews. This is the #1 factor for "near me" and "in Jashore" searches and the map results.
@@ -528,3 +528,13 @@ Rankings take weeks to months to build and can't be guaranteed by any code; the 
 // 200 { ok: true, redirect: "/admin/login?email=..." }
 // 403 { error: "adminGate.notAdmin" } · 422 { error: "adminGate.invalidEmail" } · 429 { error: "adminGate.rateLimited" }
 ```
+
+---
+
+## 16. Design system & contact → WhatsApp
+
+**Fonts** (`app/fonts.ts`): headings Sora + Baloo Da 2 (Bangla), body Plus Jakarta Sans + Anek Bangla.
+
+**Colours & motion** (`app/globals.css`): brand gold plus vivid `coral`, `magenta`, `violet`. Utilities: `bg-energy` (animated gradient), `text-gradient`, `card-glow` (animated gradient border + lift), `hero-aurora` (moving colour blobs), `sparkles`, `btn-shine`; header scroll-progress bar; `EnergyRibbon` (running service names under the hero). All animations stop for visitors with "reduce motion" turned on.
+
+**Contact form** (`components/public/contact-form.tsx`): builds the WhatsApp message (subject = chosen service, name, phone, email, message), saves the enquiry via `/api/contact` in the background (max 4 s, never blocks), then navigates to `wa.me/<NEXT_PUBLIC_WHATSAPP_NUMBER>` in the same tab (never blocked as a popup). The build fails if `NEXT_PUBLIC_WHATSAPP_NUMBER` is missing. A `wa.me/qr/…` profile link cannot carry a pre-filled message, so the number is always used.

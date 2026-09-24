@@ -18,10 +18,12 @@ Bangla-first (English toggle) · light/dark mode · runs on **Cloudflare's free 
 
 **Public site** (Bangla by default, English button in the header)
 - **Home:** banner slider → about → services → team (when added) → client logos + feedback → 4 gallery highlights → contact form → footer
-- **Pages:** About, Services, Gallery (category filter, photo viewer, YouTube), Clients (logos + feedback), Contact
+- **Pages:** About, Services, Team, Gallery (category filter, photo viewer, YouTube), Clients (logos + feedback), Contact
 - **Contact form:** saves the enquiry, then opens WhatsApp with the details filled in
 - **Phones/tablets:** fixed bottom bar with **Services** and **WhatsApp**
-- **Local SEO:** a page for each district (Jashore, Jhenaidah, Magura, Satkhira, Khulna, Narail, Bagerhat, Kushtia, Chuadanga, Meherpur) in Bangla + English, business structured data, ~1,000 bilingual keywords, sitemap
+- **All 64 districts:** a Bangla + English page for every district; the 10 core districts (Jashore, Jhenaidah, Magura, Satkhira, Khulna, Narail, Bagerhat, Kushtia, Chuadanga, Meherpur) are always listed first
+- **Team page** (`/team`) and team section on the home page
+- **Contact form → WhatsApp:** always opens WhatsApp with subject, name, phone, email and message (the enquiry is also saved for the admin)
 - **Installable app (PWA):** "Download the app" button in the footer, offline page, home-screen icon
 - **Footer "Admin login":** asks for the email first; only the admin email continues to the login page
 - Unknown URLs redirect to the home page
