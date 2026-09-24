@@ -2,7 +2,7 @@
 // Setup: DEVELOPER_INSTRUCTIONS.md → "Deploy to Cloudflare".
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dep360-site",
+  "name": "360dep-com",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-15",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -10,7 +10,7 @@
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
 
   // Required by OpenNext for background page rebuilds.
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "dep360-site" }],
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "360dep-com" }],
 
   // Page cache and cache tags. Ids are filled in automatically by `npm run deploy` (scripts/cf-deploy.mjs).
   "kv_namespaces": [{ "binding": "NEXT_INC_CACHE_KV" }],

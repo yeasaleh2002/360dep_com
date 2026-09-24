@@ -457,6 +457,7 @@ Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE
 | "Too many attempts" | The rate limit resets after one minute. |
 | Cloudflare build: "DATABASE_URL is missing at build time" | Add it under Settings → Build → Variables and secrets (build variables are separate from runtime secrets). See section 10. |
 | Deploy can't find `.open-next/worker.js` | Build command must be `npm run build`. |
+| Deploy: "Failed to match Worker name" / "Service binding WORKER_SELF_REFERENCE references Worker … not found [code: 10143]" | `name` and the `WORKER_SELF_REFERENCE` service in `wrangler.jsonc` must both equal the Worker name shown in the Cloudflare dashboard (currently `360dep-com`). |
 | Deploy: "This Worker does not exist on your account [code: 10007]" during "Populating remote KV" | `wrangler.jsonc` had no KV id. Fixed: ids are now filled in after `npm run build` (`postbuild`). Make sure the Build command is `npm run build`. |
 | Build warnings about `CompressionStream` in `jose` | Harmless — that part of the library (encrypted JWTs) is never used. |
 | Worker exceeds the size limit | Check with `npx wrangler deploy --dry-run`. Currently ~1.4 MB gzipped against the 3 MB free limit. Avoid large server-side dependencies. |
