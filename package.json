@@ -5,6 +5,7 @@
   "description": "360DEP — premium event management website with admin portal",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-build-env.mjs",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

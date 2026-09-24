@@ -371,40 +371,62 @@ type Lead = {
 
 ## 10. Deploy to Cloudflare
 
-Everything below works on the **free plan** with no payment method.
+Everything below works on the **free plan** with no payment method. There are two ways to deploy: **A** (recommended) builds automatically on every `git push`; **B** deploys from your computer.
 
-**One-time setup**
+### Step 1 — create the cache storage (once)
+
+Dashboard → **Storage & Databases**:
+- **KV** → Create namespace → name it `dep360-page-cache` → copy its **ID**.
+- **D1** → Create database → name it `dep360-tag-cache` → copy its **Database ID**.
+
+(Or from a terminal: `npx wrangler kv namespace create NEXT_INC_CACHE_KV` and `npx wrangler d1 create dep360-tag-cache`.)
+
+Paste both into `wrangler.jsonc` in place of `REPLACE_WITH_KV_NAMESPACE_ID` / `REPLACE_WITH_D1_DATABASE_ID`, then commit and push. These ids are not secret.
+
+### Option A — automatic deploys from GitHub (Workers Builds)
+
+1. Dashboard → **Workers & Pages** → **Create** → **Workers** tab → **Import a repository** → pick this repo.
+   ⚠️ Choose **Workers**, not Pages — this project doesn't run on Pages.
+2. **Build settings:**
+
+   | Setting | Value |
+   |---|---|
+   | Build command | `npx opennextjs-cloudflare build` |
+   | Deploy command | `npx opennextjs-cloudflare deploy` |
+   | Root directory | `/` |
+
+   The default `npm run build` only runs `next build` and can't produce a Worker.
+3. **Build variables** — Settings → **Build** → **Variables and secrets** (the build pre-renders pages from the database and bakes in the public values):
+
+   | Name | Type |
+   |---|---|
+   | `DATABASE_URL` | Secret |
+   | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Text |
+   | `NEXT_PUBLIC_WHATSAPP_PROFILE_LINK` | Text |
+   | `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Text |
+   | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Text |
+   | `NEXT_PUBLIC_SITE_URL` | Text (optional) |
+4. **Runtime secrets** — Settings → **Variables and Secrets** (what the live site uses; separate from build variables):
+
+   `DATABASE_URL`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `IMGBB_API_KEY`, `TURNSTILE_SECRET_KEY` — all as **Secret**.
+5. Push to `main` (or click **Retry build**). Each push now builds and deploys automatically.
+
+If something is missing, the build stops in the first seconds with a message saying exactly what to add (`scripts/check-build-env.mjs`).
+
+### Option B — deploy from your computer
+
 ```bash
-npm install
-npx wrangler login                                   # opens the browser
-
-npx wrangler kv namespace create NEXT_INC_CACHE_KV   # copy the "id"
-npx wrangler d1 create dep360-tag-cache              # copy the "database_id"
+npx wrangler login
+npx wrangler secret put DATABASE_URL        # repeat for JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD_HASH,
+                                            # IMGBB_API_KEY, TURNSTILE_SECRET_KEY
+npm run deploy                              # builds with your local .env, uploads, fills the page cache
 ```
-Paste both ids into `wrangler.jsonc` (replace `REPLACE_WITH_…`).
+Make sure `.env` has the **production** values — `NEXT_PUBLIC_*` and `DATABASE_URL` are read at build time.
 
-**Secrets** (stored encrypted by Cloudflare, never in the repo):
-```bash
-npx wrangler secret put DATABASE_URL
-npx wrangler secret put JWT_SECRET
-npx wrangler secret put ADMIN_EMAIL
-npx wrangler secret put ADMIN_PASSWORD_HASH
-npx wrangler secret put IMGBB_API_KEY
-npx wrangler secret put TURNSTILE_SECRET_KEY
-```
-(Or: dashboard → Workers & Pages → `dep360-site` → Settings → Variables and Secrets.)
+### After the first deploy
 
-**Build-time values:** `npm run deploy` builds on your computer and reads `NEXT_PUBLIC_*` and `DATABASE_URL` (pages are pre-rendered from the database at build time) from your local `.env`. Make sure `.env` has the **production** values before deploying.
-If you use Cloudflare **Workers Builds** (auto-deploy from Git), add the same variables under the project's *Build* → *Variables*, and set the build command to `npx opennextjs-cloudflare build` and the deploy command to `npx opennextjs-cloudflare deploy`.
-
-**Deploy**
-```bash
-npm run deploy         # builds, uploads and fills the page cache
-```
-
-**Custom domain:** dashboard → `dep360-site` → Settings → Domains & Routes → **Add custom domain** → `360dep.com` (the domain must be on Cloudflare DNS, which is free).
-
-**After the first deploy:** open `https://360dep.com/admin`, sign in, and check the contact form end to end.
+- **Custom domain:** your Worker → Settings → Domains & Routes → **Add** → Custom domain → `360dep.com` (the domain must use Cloudflare DNS — free).
+- Open `/admin`, sign in, and send a test enquiry through the contact form.
 
 ---
 
@@ -440,7 +462,9 @@ npm run deploy         # builds, uploads and fills the page cache
 | Admin change doesn't appear on the site | Reload once: the first visit after an edit rebuilds the page. Check the Worker logs (dashboard → Observability) for `revalidateTag` / D1 errors and that the D1 binding id in `wrangler.jsonc` is correct. |
 | Login says the check failed | Turnstile keys are missing or don't match the domain. For local testing use the test keys in section 3. |
 | "Too many attempts" | The rate limit resets after one minute. |
-| Build fails with a database error | `DATABASE_URL` must be set at build time (pages are pre-rendered from the DB). |
+| Cloudflare build: "DATABASE_URL is missing at build time" | Add it under Settings → Build → Variables and secrets (build variables are separate from runtime secrets). See section 10. |
+| Cloudflare build ran `next build` only / deploy can't find `.open-next/worker.js` | Set Build command `npx opennextjs-cloudflare build` and Deploy command `npx opennextjs-cloudflare deploy`. |
+| Build warnings about `CompressionStream` in `jose` | Harmless — that part of the library (encrypted JWTs) is never used. |
 | Worker exceeds the size limit | Check with `npx wrangler deploy --dry-run`. Currently ~1.4 MB gzipped against the 3 MB free limit. Avoid large server-side dependencies. |
 | A dynamic page returns 404 after an admin edit | Don't add `export const dynamicParams = false` to pages that read cached data — in Next 15 a tag revalidation then makes them 404 (`NoFallbackError`). Handle unknown params with `notFound()` instead (see `app/(public)/areas/[slug]/page.tsx`). |
 | Images don't load | CSP only allows `i.ibb.co`, `wsrv.nl`, `i.ytimg.com`. New image hosts must be added in `next.config.ts`. |

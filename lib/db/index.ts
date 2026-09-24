@@ -9,7 +9,7 @@ let cached: { url: string; db: Database } | undefined;
 // Lazy: on Cloudflare, process.env is only populated inside a request.
 export function getDb(): Database {
   const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL is not set");
+  if (!url) throw new Error("DATABASE_URL is not set (add it to .env locally, or as a Cloudflare build variable and runtime secret).");
   if (cached?.url !== url) cached = { url, db: drizzle(neon(url), { schema }) };
   return cached.db;
 }

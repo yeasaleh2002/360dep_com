@@ -50,6 +50,8 @@ npx wrangler secret put DATABASE_URL                  # …and the other secrets
 npm run deploy
 ```
 
+**Auto-deploy from GitHub (Workers Builds):** create a **Worker** (not Pages) from the repo, set Build command `npx opennextjs-cloudflare build` and Deploy command `npx opennextjs-cloudflare deploy`, and add `DATABASE_URL` + the `NEXT_PUBLIC_*` values as **build variables**.
+
 Step-by-step: **DEVELOPER_INSTRUCTIONS.md → Deploy to Cloudflare**.
 
 ## Scripts
